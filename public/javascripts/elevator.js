@@ -15,10 +15,10 @@ addBtn.onclick = () => {
     socket.send(fromFloor.value + " " + toFloor.value)
 }
 
-
-setInterval(function move() {
-    socket.send("move")
-}, 10000)
+// bad practice
+//setInterval(function move() {
+//    socket.send("move")
+//}, 10000)
 
 
 socket.onmessage = (event) => {

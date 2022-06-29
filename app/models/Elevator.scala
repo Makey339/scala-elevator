@@ -6,16 +6,15 @@ import scala.runtime.Nothing$
 
 class Elevator(var floors: List[Floor], var passengers: List[Passenger], var currentFloor: Int) {
 
-  var direction:Boolean = true
+  var direction: Boolean = true
 
   private def getDestinations: List[Int] = {
-    passengers.map(_.toFloor).appendedAll(floors.filter(_.passengerList.nonEmpty).flatMap(_.passengerList).map(_.toFloor))
+    passengers.map(_.toFloor).appendedAll(floors.filter(_.passengerList.nonEmpty).flatMap(_.passengerList).map(_.fromFloor))
   }
 
   def move() = {
-
-    if (currentFloor==1)
-      getPassengersFromFloor()
+    getPassengersFromFloor()
+    ejectPassengers()
 
     val destinations = getDestinations
     if (destinations.nonEmpty) {
@@ -25,25 +24,23 @@ class Elevator(var floors: List[Floor], var passengers: List[Passenger], var cur
       else
         currentFloor -= 1
     }
-    println("пассажиры" + passengers)
-    println("этажи" + floors)
-    ejectPassengers()
-    getPassengersFromFloor()
+
+    println(s"In elevator: $passengers")
   }
 
   private def getPassengersFromFloor() = {
-    passengers = passengers.appendedAll(floors.find(_.id==currentFloor).getOrElse(floors(1)).passengerList)
-    floors.foreach(f => if (f.id==currentFloor) f.cleanPassengers())
+    passengers = passengers.appendedAll(floors.find(_.id == currentFloor).getOrElse(floors(1)).passengerList)
+    floors.foreach(f => if (f.id == currentFloor) f.cleanPassengers())
   }
 
   private def ejectPassengers() = {
-    passengers = passengers.filterNot(_.toFloor==currentFloor)
+    passengers = passengers.filterNot(_.toFloor == currentFloor)
   }
 
   private def checkDirecton() = {
-    if ((direction&&(getDestinations.max<currentFloor))||(currentFloor==9))
+    if ((direction && (getDestinations.max <= currentFloor)) || (currentFloor == floors.size))
       direction = false
-    if ((!direction)&&(getDestinations.min>currentFloor)||(currentFloor==1))
+    if ((!direction) && (getDestinations.min >= currentFloor) || (currentFloor == 1))
       direction = true
   }
 }

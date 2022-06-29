@@ -5,8 +5,7 @@ import models.{Elevator, Floor, Passenger}
 
 class ElevatorManager extends Actor {
   private var users = List.empty[ActorRef]
-  private var elevator = new Elevator(for (i <- List.range(1, 10)) yield new Floor(i, List.empty[Passenger]), List.empty[Passenger], 1)
-
+  private val elevator = new Elevator(List.range(1, 10).map(Floor(_, List.empty[Passenger])), List.empty[Passenger], 1)
 
   import ElevatorManager._
 
@@ -14,10 +13,10 @@ class ElevatorManager extends Actor {
     case newUser(user) => users ::= user
     case newPassenger(passenger: Passenger) =>
       elevator.floors.filter(_.id == passenger.fromFloor).foreach(_.passengerList ::= passenger)
-      for (u <- users) u ! ElevatorActor.drawElevator(elevator)
+      users.foreach(_ ! ElevatorActor.drawElevator(elevator))
     case nextMove() =>
       elevator.move()
-      for (u <- users) u ! ElevatorActor.drawElevator(elevator)
+      users.foreach(_ ! ElevatorActor.drawElevator(elevator))
     case m => println("Unhandled message in ElevatorManager: " + m)
   }
 }
